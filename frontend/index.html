@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inventory Search System</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #dfe9f3);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    input, select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      flex: 1;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .card {
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: #f9fafc;
+      transition: 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .category {
+      color: #555;
+    }
+
+    .price {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .no-results {
+      text-align: center;
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Inventory Search System</h2>
+
+  <div class="filters">
+    <input type="text" id="search" placeholder="Search product..." />
+    
+    <select id="category">
+      <option value="">All</option>
+      <option>Electronics</option>
+      <option>Fashion</option>
+      <option>Furniture</option>
+    </select>
+
+    <input type="number" id="minPrice" placeholder="Min Price" />
+    <input type="number" id="maxPrice" placeholder="Max Price" />
+
+    <button onclick="search()">Search</button>
+    <button onclick="clearFilters()">Clear</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+async function search() {
+  const q = document.getElementById("search").value;
+  const category = document.getElementById("category").value;
+  const minPrice = document.getElementById("minPrice").value;
+  const maxPrice = document.getElementById("maxPrice").value;
+
+  if (minPrice && maxPrice && Number(minPrice) > Number(maxPrice)) {
+    alert("Invalid price range");
+    return;
+  }
+
+  const container = document.getElementById("results");
+  container.innerHTML = "<p>Loading...</p>";
+
+  const url = `http://127.0.0.1:5000/search?q=${q}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  container.innerHTML = "";
+
+  if (data.length === 0) {
+    container.innerHTML = "<p class='no-results'>No results found</p>";
+    return;
+  }
+
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    let name = item.name;
+
+    if (q) {
+      name = item.name.replace(
+        new RegExp(q, "gi"),
+        match => `<span style="background:yellow">${match}</span>`
+      );
+    }
+
+    div.innerHTML = `
+      <div class="name">${name}</div>
+      <div class="category">${item.category}</div>
+      <div class="price">₹${item.price}</div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function clearFilters() {
+  document.getElementById("search").value = "";
+  document.getElementById("category").value = "";
+  document.getElementById("minPrice").value = "";
+  document.getElementById("maxPrice").value = "";
+  search();
+}
+
+window.onload = search;
+</script>
+
+</body>
+</html>
