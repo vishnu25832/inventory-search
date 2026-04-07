@@ -1,7 +1,3 @@
-Fine. No wrappers. No IDs. Just raw README. Copy everything below.
-
----
-
 # Inventory Search System
 
 A full-stack web application that enables users to search and filter inventory items using product name, category, and price range. This project demonstrates clean API design, filtering logic, and a simple but effective user interface.
